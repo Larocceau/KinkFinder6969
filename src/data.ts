@@ -1,47 +1,75 @@
-import type {Answer, Question, QuestionId, User} from "./types" 
+import type { Answer, Question, User, QuestionDescription, ResponseSummary } from "./types"
 
-export const questions: Question[] = [
-    {
-        id: 1,
-        prompt: "Make out"
-    },
-    {
-        id: 2,
-        prompt: "Give a handjob",
-        promptReceiver: "Receive a handjob"
-    }
+export type Theme = "New to this" | "Gross" | "Roleplay" | "Test" | "Threesome" | "Non-sexual" | "BDSM"
+
+export const allThemes: Theme[] = ["New to this", "Gross", "Roleplay", "Threesome", "Non-sexual", "BDSM"]
+
+type RawQuestion = Omit<Question, 'themes' | 'id'> & {
+    theme: Theme[]
+}
+
+const rawQuestions: RawQuestion[] = [
+    { prompt: "Engaging in roleplay", theme: ["New to this"], suggestedTheme: "Roleplay" },
+    { prompt: "Giving a massage", promptReceiver: "Getting a massage", theme: ["New to this", "Non-sexual"] },
+    { prompt: "playing the other's teacher", promptReceiver: "playing the other's student", theme: ["Roleplay"] },
+    { prompt: "Playing another gender", promptReceiver: "Having the other play another gender", theme: ["Roleplay"] },
+    { prompt: "peeing on the other", promptReceiver: "Getting peed on", theme: ["Gross"] },
+    { prompt: "exploring kinks that people may consider unhygienic", theme: ["New to this"], suggestedTheme: "Gross" },
+    { prompt: "eating the other's ass", promptReceiver: "the other eating your ass", theme: ["Gross"] },
+    { prompt: "Eating food from the other's body", promptReceiver: "Having the other eat food off you", theme: ["New to this"] },
+    { prompt: "Having sex in a public place", theme: ["New to this"] },
+    { prompt: "Having your climax controlled", promptReceiver: "controlling the other's climax", theme: ["New to this"] },
+    { prompt: "Performing a strip tease", promptReceiver: "Having the other perform a strip tease", theme: ["New to this"] },
+    { prompt: "Watch porn together", theme: ["New to this"] },
+    { prompt: "Using toys on the other", promptReceiver: "Have the other use toys on you", theme: ["New to this"] },
+    { prompt: "Play a sex game", theme: ["New to this"] },
+    { prompt: "Going to a sexs club", theme: ["New to this"] },
+    { prompt: "Having a threesome", theme: ["New to this"] },
+    { prompt: "Having a threesome with someone you both know", theme: ["Threesome"] },
+    { prompt: "Having a threesome with someone you know", promptReceiver: "Having a threesome with someone the other knows", theme: ["Threesome"] },
+    { prompt: "Having a threesome with someone with a penis", theme: ["Threesome"] },
+    { prompt: "Having a threesome with someone with a vagina", theme: ["Threesome"] },
+    { prompt: "Buying lingerie for the other", promptReceiver: "the other buying lingerie for you", theme: ["New to this"] },
+    { prompt: "Going to a sex shop", theme: ["New to this"] },
+    { prompt: "Going to a nudist beach", theme: ["New to this", "Non-sexual"] },
+    { prompt: "Picking out an outfit for the other", promptReceiver: "the other picking out an outfit for you", theme: ["Non-sexual"] },
+    { prompt: "Styling the other's hair", promptReceiver: "the other styling your hair", theme: ["Non-sexual"] },
+    { prompt: "Getting a dog together", theme: ["Non-sexual"] },
+    { prompt: "Tying the other up", promptReceiver: "Getting tied up", theme: ["BDSM"] },
+    { prompt: "Being the dominant partner", promptReceiver: "Being the submissive partner", theme: ["BDSM", "New to this"] }
 ]
 
-type QuestionDescription = {
-    QuestionId: QuestionId,
-    Receiver?: User
+const all_questions: Set<Question> = new Set(
+    rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id }))
+)
+
+export const questionIds = (themes: any) => {
+    return [...all_questions].filter(({ themes: questionThemes }) => themes.intersection(questionThemes).size > 0).map(({ id: id }) => id)
 }
 
-type ResponseSummary =  {
-    Common: QuestionDescription[],
-    User1: QuestionDescription[],
-    User2: QuestionDescription[],
-    CommonOpen: QuestionDescription[],
-}
+export const questionsMap: Map<number, Question> = new Map([...all_questions].map(q => [q.id, q]))
 
-
-
-const summariseResponses = (questions: Question[], answers: Answer[]): ResponseSummary => {
+export const summariseResponses = (answers: Answer[]): ResponseSummary => {
     var common: QuestionDescription[] = [];
     var user1: QuestionDescription[] = [];
     var user2: QuestionDescription[] = [];
     var commonOpen: QuestionDescription[] = [];
 
-    for (const question of questions){
-        if(!question.promptReceiver){
+    for (const question of all_questions) {
+        if (!question.promptReceiver) {
             const a1 = answers.find((a) => a.questionId == question.id && a.user == 1)
             const a2 = answers.find((a) => a.questionId == question.id && a.user == 2)
-            const qd = {QuestionId: question.id}
+
+            if (!(a1 && a2)) {
+                continue
+            }
+            const qd = { QuestionId: question.id }
+
 
             if (a1.attitude == 'excited' && a2.attitude == 'excited') {
                 common.push(qd)
             }
-            else if(a1.attitude == 'excited' && a2.attitude == 'open') {
+            else if (a1.attitude == 'excited' && a2.attitude == 'open') {
                 user1.push(qd)
             }
             else if (a1.attitude == 'open' && a2.attitude == 'excited') {
@@ -51,25 +79,29 @@ const summariseResponses = (questions: Question[], answers: Answer[]): ResponseS
                 commonOpen.push(qd)
             }
         } else {
-            for (const receiver of [1,2]){
-            const receiverForReals = receiver as User
-            const [a1Role, a2Role] = receiver == 1 ? ["receiver", "giver"] : ["giver", "receiver"]
-            const a1 = answers.find((a) => a.questionId == question.id && a.user == 1 && a.asRole == a1Role)
-            const a2 = answers.find((a) => a.questionId == question.id && a.user == 2 && a.asRole == a2Role)
-            const qd = {QuestionId: question.id, Receiver: receiverForReals}
+            const receivers: User[] = [1, 2]
+            for (const receiver of receivers) {
+                const [a1Role, a2Role] = receiver == 1 ? ["Receiver", "Giver"] : ["Giver", "Receiver"]
+                const a1 = answers.find((a) => a.questionId == question.id && a.user == 1 && a.asRole == a1Role)
+                const a2 = answers.find((a) => a.questionId == question.id && a.user == 2 && a.asRole == a2Role)
+                const qd = { QuestionId: question.id, Receiver: receiver }
 
-            if (a1.attitude == 'excited' && a2.attitude == 'excited') {
-                common.push(qd)
-            }
-            else if(a1.attitude == 'excited' && a2.attitude == 'open') {
-                user1.push(qd)
-            }
-            else if (a1.attitude == 'open' && a2.attitude == 'excited') {
-                user2.push(qd)
-            }
-            else if (a1.attitude == 'open' && a2.attitude == 'open') {
-                commonOpen.push(qd)
-            }
+                if (!(a1 && a2)) {
+                    continue
+                }
+
+                if (a1.attitude == 'excited' && a2.attitude == 'excited') {
+                    common.push(qd)
+                }
+                else if (a1.attitude == 'excited' && a2.attitude == 'open') {
+                    user1.push(qd)
+                }
+                else if (a1.attitude == 'open' && a2.attitude == 'excited') {
+                    user2.push(qd)
+                }
+                else if (a1.attitude == 'open' && a2.attitude == 'open') {
+                    commonOpen.push(qd)
+                }
 
             }
         }
