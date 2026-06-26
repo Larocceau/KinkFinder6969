@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import type { Answer, Config } from './types'
 import { SetupForm } from './setup'
