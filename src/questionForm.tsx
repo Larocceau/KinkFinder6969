@@ -110,7 +110,7 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
 
     if (!props.config.questions[currentQuestionIndex + 1]) {
       if (currentUser === 1) {
-        setCurrentQuestionIndex(-1)
+        setCurrentQuestionIndex(0)
         sethandover(true)
         setCurrentUser(2)
       } else {
