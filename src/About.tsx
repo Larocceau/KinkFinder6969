@@ -7,7 +7,7 @@ export function About(props: AboutProps) {
 
     return <>
         <h2>Sexual and triggering themes</h2>
-        <p>This website contains sexual themes, and themes that may be triggering (for example bondage and Consentual Non-Consent). Thread with caution.</p>
+        <p>This website contains sexual themes, and themes that may be triggering (for example bondage and Consentual Non-Consent). Tread with caution.</p>
 
         <h2>What is KinkFinder 6969?</h2>
         <p>KinkFinder 6969 is a way for couples to find out about sexual (and non-sexual) interests of their partner. After both independently giving your attitude towards a sequence of prompts, you'll get an overview of things you both are excited about or open to. The site purposefully only lists items you both are at least open to, so if you feel awkward about being into something, your partner will only know if they are also open to it.</p>
