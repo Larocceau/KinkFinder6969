@@ -17,45 +17,21 @@ header{
 
 }
 
-.sidebar {
-    padding: 40px;
+main {
     display: flex;
-    flex-direction: column;
-    justify-items: center;
-    gap: 20px;
-    position: fixed;
+    flex-direction: row;
+
 }
 
-.sidebar.left {
-    left: 0px;
+.sidebar{
+    flex-grow: 1;
 }
-
-@media screen and (max-width: 1136px) {
-    .sidebar.right {
-        display: none;
-    }
-}
-
-
-
-.sidebar.right {
-    right: 0px;
-}
-
-
-.sidebar img {
-    width: 150px;
-    height: auto;
-    border: 5px;
-    overflow: hidden;
-}
- 
 
 #root {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 800px;
 }
 
 .site-title {

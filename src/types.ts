@@ -3,7 +3,7 @@ import type { Theme } from "./data";
 export type Role = 'Giver' | 'Receiver';
 export type User = 1 | 2 
 export type QuestionId = number
-export type Attitude = "excited" | "open" | "uninterested"
+export type Attitude = "excited" | "open" | "uninterested" | "does not apply"
 
 
 export type Question = {

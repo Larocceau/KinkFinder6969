@@ -32,6 +32,9 @@ function QuestionForm(props: QuestionFormProps) {
       case "uninterested":
         parsed = 'uninterested'
         break
+      case "does not apply":
+        parsed = 'does not apply'
+        break
     }
 
     setError(false)
@@ -68,6 +71,9 @@ function QuestionForm(props: QuestionFormProps) {
         <option value="uninterested">
           I'm Uninterested
         </option>
+        <option value="does not apply">
+          Does not work for us
+        </option>
       </select>
       <button onClick={handleSubmit}>submit</button>
     </div>
@@ -85,9 +91,8 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [currentRole, setCurrentRole] = useState<Role>("Giver")
   const [answers, setAnswers] = useState<Answer[]>([])
+  const [handover, sethandover] = useState<boolean>(true)
   
-  console.log(props.config)
-
   const question = props.config.questions[currentQuestionIndex]
 
   const handleQuestionSubmit = (attitude: Attitude) => {
@@ -105,7 +110,8 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
 
     if (!props.config.questions[currentQuestionIndex + 1]) {
       if (currentUser === 1) {
-        setCurrentQuestionIndex(0)
+        setCurrentQuestionIndex(-1)
+        sethandover(true)
         setCurrentUser(2)
       } else {
         props.onEverythingCollected(newAnswers)
@@ -117,6 +123,14 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
   }
 
   const [me, other] = currentUser == 1 ? [props.config.player_1, props.config.player_2] : [props.config.player_2, props.config.player_1]
+
+
+  if (handover) {
+    return <>
+      <p>It's {me}'s turn to fill out the form</p>
+      <button onClick={(_) => sethandover(false)}>I'm ready</button>
+    </>
+  }
 
 
   return (
