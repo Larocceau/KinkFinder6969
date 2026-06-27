@@ -16,7 +16,7 @@ To bundle, run
 npm run build
 ```
 
-Want to contribute? check out [contributing.md](contributing)
+Want to contribute? check out [contributing.md](CONTRIBUTING)
 
 ## Furter documentation
 
