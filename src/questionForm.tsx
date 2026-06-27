@@ -1,11 +1,19 @@
 import { useState } from "react"
-import type { Answer, Attitude, Config, Question, Role, User } from "./types"
+import { type QuestionDescription, type Attitude, type Config, type DescriptionsAndResponses, type Question, type Responses, type Role, type User } from "./types"
+import { all_questions } from "./data"
 
 type QuestionFormProps = {
   question: Question,
   role: Role,
   doSubmit: (attitude: Attitude) => void
   other_name: string
+}
+
+type Answer = {
+  user: User,
+  question: QuestionDescription,
+  attitude: Attitude,
+  roundNumber: number,
 }
 
 function QuestionForm(props: QuestionFormProps) {
@@ -43,9 +51,9 @@ function QuestionForm(props: QuestionFormProps) {
 
   }
 
-  const prompt = 
+  const prompt =
     (props.role === 'Giver' ? props.question.prompt : (props.question.promptReceiver ?? props.question.prompt))
-    .replace("the other", props.other_name)
+      .replace("the other", props.other_name)
 
 
   return (
@@ -77,8 +85,8 @@ function QuestionForm(props: QuestionFormProps) {
 }
 
 export type QuestionPhaseProps = {
-  onEverythingCollected: (answers: Answer[]) => void
-  questions: Question[]
+  onEverythingCollected: (answers: DescriptionsAndResponses) => void
+  questions: QuestionDescription[]
   roundNumber: number
   config: Config
 }
@@ -86,24 +94,17 @@ export type QuestionPhaseProps = {
 export function QuestionsPhase(props: QuestionPhaseProps) {
   const [currentUser, setCurrentUser] = useState<User>(1)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [currentRole, setCurrentRole] = useState<Role>("Giver")
   const [answers, setAnswers] = useState<Answer[]>([])
   const [handover, sethandover] = useState<boolean>(true)
 
-  
+
   const question = props.questions[currentQuestionIndex]
 
   const handleQuestionSubmit = (attitude: Attitude) => {
-    const newAnswer = { user: currentUser, asRole: currentRole, question: question, attitude, roundNumber: props.roundNumber }
+    const newAnswer = { user: currentUser, question: question, attitude, roundNumber: props.roundNumber }
     const newAnswers = [...answers, newAnswer]
     setAnswers(newAnswers)
 
-    if (currentRole === "Giver" && question?.promptReceiver) {
-      setCurrentRole("Receiver")
-      return
-    }
-
-    setCurrentRole("Giver")
 
     if (!props.questions[currentQuestionIndex + 1]) {
       if (currentUser === 1) {
@@ -111,7 +112,28 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
         sethandover(true)
         setCurrentUser(2)
       } else {
-        props.onEverythingCollected(newAnswers)
+        const responses = new Map<QuestionDescription, Responses>()
+
+        for (const question of all_questions) {
+
+
+          const a1 = newAnswers.find((a) => a.question == question && a.user == 1)
+          const a2 = newAnswers.find((a) => a.question == question && a.user == 2)
+
+          if (a1 && a2) {
+            responses.set(
+              question, {
+              attitude_user1: a1.attitude,
+              attitude_user2: a2.attitude,
+              round_number: props.roundNumber
+            }
+
+            )
+
+
+          }
+        }
+        props.onEverythingCollected(responses)
       }
     } else {
       setCurrentQuestionIndex((idx) => idx + 1)
@@ -134,7 +156,7 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
     <div>
 
       taking answers from  {me}
-      <QuestionForm other_name={other} question={question} role={currentRole} doSubmit={handleQuestionSubmit}></QuestionForm>
+      <QuestionForm other_name={other} question={question.question} role={currentUser == question.Receiver ? "Receiver" : "Giver"} doSubmit={handleQuestionSubmit}></QuestionForm>
 
 
     </div>

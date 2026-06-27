@@ -1,9 +1,9 @@
-import type { QuestionDescription, Question, Answer, Config, User } from './types'
+import type { QuestionDescription, Question, Config, User, DescriptionsAndResponses } from './types'
 import { allThemes, summariseResponses, type Theme } from './data'
 import { useState } from 'react'
 
 type ReportingProps = {
-    answers: Answer[],
+    answers: DescriptionsAndResponses,
     startNewRound: (themes: Set<Theme>) => void
     config: Config,
     roundNumber: number
@@ -83,14 +83,8 @@ export default function Reporting(props: ReportingProps) {
         })
     }
 
-    const answersMaybeFilteredByRound = answers.filter((answer) => (!onlyCurrentRound || answer.roundNumber == props.roundNumber))
-
-
-
-    const relevantThemes = ([...new Set(answersMaybeFilteredByRound.map((a) => [...a.question.themes]).flat())])
-
-
-
+    const answersMaybeFilteredByRound = [...answers].filter(([_, responses]) => (!onlyCurrentRound || responses.round_number == props.roundNumber))
+    const relevantThemes = ([...new Set(answersMaybeFilteredByRound.map(([description, _]) => [...description.question.themes]).flat())])
 
     const themeToggles = relevantThemes.map((theme) =>
         <label>
@@ -99,16 +93,16 @@ export default function Reporting(props: ReportingProps) {
         </label>
     )
 
-    const relevantAnswers =  answersMaybeFilteredByRound.filter((answer) => {
-        const inSelectedThemes = [...answer.question.themes].some((theme) => selectedThemes.has(theme))
+    const relevantAnswers =  answersMaybeFilteredByRound.filter(([description, outcome]) => {
+        const inSelectedThemes = [...description.question.themes].some((theme) => selectedThemes.has(theme))
 
-        return inSelectedThemes && (!onlyCurrentRound || answer.roundNumber == props.roundNumber)
+        return inSelectedThemes && (!onlyCurrentRound || outcome.round_number == props.roundNumber)
 
     }
 
 )
 
-    const summary = summariseResponses(relevantAnswers)
+    const summary = summariseResponses(new Map(relevantAnswers))
 
     return (
         <div>

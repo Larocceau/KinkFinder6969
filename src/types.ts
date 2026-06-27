@@ -19,19 +19,18 @@ export type Config = {
 }
 
 
-export type Answer = {
-    user: User,
-    question: Question,
-    asRole: Role,
-    attitude: Attitude,
-    roundNumber: number,
-}
-
-
 export type QuestionDescription = {
     question: Question,
     Receiver?: User
 }
+
+export type Responses = {
+    attitude_user1: Attitude,
+    attitude_user2: Attitude,
+    round_number: number
+}
+
+export type DescriptionsAndResponses = Map<QuestionDescription, Responses>
 
 export type ResponseSummary =  {
     Common: QuestionDescription[],

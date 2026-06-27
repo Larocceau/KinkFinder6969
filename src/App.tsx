@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import './App.css'
-import type { Answer, Config, Question } from './types'
+import type { Config, QuestionDescription, Responses } from './types'
 import { SetupForm } from './setup'
 import { QuestionsPhase } from './questionForm'
 import Reporting from './Reporting'
@@ -10,7 +10,7 @@ import { RoundSetupForm } from './roundSetup'
 
 
 type ReportingPhase = { kind: "reporting" }
-type Collecting = { kind: "collecting", questions: Question[] }
+type Collecting = { kind: "collecting", questions: QuestionDescription[] }
 type RoundSetup = { kind: "round-setup", preselection: Set<Theme> }
 
 type PostSetupPhase = RoundSetup | Collecting | ReportingPhase
@@ -22,7 +22,7 @@ type PostSetup = {
   kind: "post-setup"
   phase: PostSetupPhase
   config: Config
-  answers: Answer[]
+  answers: Map<QuestionDescription,Responses>
 }
 
 type Phase = About | Setup | PostSetup
@@ -36,7 +36,7 @@ type PostSetupPhaseProps = {
 function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
   const { phase: innerPhase, config, answers } = phase
 
-  const startNewRound = (questions: Question[]) => {
+  const startNewRound = (questions: QuestionDescription[]) => {
     setPhase(
       {
         ...phase,
@@ -49,7 +49,7 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
     )
   }
 
-  const submitAnswers = (newAnswers: Answer[]) => {
+  const submitAnswers = (newAnswers: Map<QuestionDescription, Responses>) => {
     setPhase(
       {
         ...phase,
@@ -57,7 +57,7 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
         phase: {
           kind: "reporting",
         },
-        answers: answers.concat(newAnswers)
+        answers: new Map([...answers, ...newAnswers])
       }
     )
   }
@@ -76,7 +76,7 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
   }
 
   const currentRound = useMemo(() =>  {
-    const previous  = Math.max(...phase.answers.map((a) => a.roundNumber))
+    const previous  = Math.max(...[...phase.answers].map(([_, responses]) => responses.round_number))
     if (isFinite(previous)) {
       return previous + 1
     } else {
@@ -87,7 +87,7 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
   }, [phase.answers])
 
   if (innerPhase.kind == "round-setup") {
-    return <RoundSetupForm initialSelection={innerPhase.preselection} onSubmit={startNewRound} />
+    return <RoundSetupForm initialSelection={innerPhase.preselection} onSubmit={startNewRound} answers={answers}/>
   } else if (innerPhase.kind == "reporting") {
     return <Reporting config={config} answers={answers} startNewRound={startNewSetup} roundNumber={currentRound -1 } />
   } else if (innerPhase.kind == "collecting") {
@@ -103,7 +103,7 @@ function App() {
 
 
   const saveConfig = (config: Config) => {
-    setCurrentPhase({ kind: "post-setup", config: config, answers: [], phase: { kind: "round-setup", preselection: new Set(["New to this"]) } })
+    setCurrentPhase({ kind: "post-setup", config: config, answers: new Map(), phase: { kind: "round-setup", preselection: new Set(["New to this"]) } })
   }
 
 

@@ -1,4 +1,4 @@
-import type { Answer, Question, User, QuestionDescription, ResponseSummary } from "./types"
+import type {  Question, QuestionDescription, ResponseSummary, DescriptionsAndResponses } from "./types"
 
 export type Theme = "New to this" | "Dirty" | "Roleplay" | "Threesome" | "Non-sexual" | "BDSM"
 
@@ -16,7 +16,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "peeing on the other", promptReceiver: "Getting peed on", theme: ["Dirty"] },
     { prompt: "exploring kinks that people may consider unhygienic", theme: ["New to this"], suggestedTheme: "Dirty" },
     { prompt: "eating the other's ass", promptReceiver: "the other eating your ass", theme: ["Dirty"] },
-    { prompt: "having sex after a heavy workout", theme: ["Dirty", "New to this"]},
+    { prompt: "having sex after a heavy workout", theme: ["Dirty", "New to this"] },
     { prompt: "Eating food from the other's body", promptReceiver: "Having the other eat food off you", theme: ["New to this"] },
     { prompt: "Having sex in a public place", theme: ["New to this"] },
     { prompt: "Having your climax controlled", promptReceiver: "controlling the other's climax", theme: ["New to this"] },
@@ -38,85 +38,50 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "Getting a dog together", theme: ["Non-sexual"] },
     { prompt: "Tying the other up", promptReceiver: "Getting tied up", theme: ["BDSM"] },
     { prompt: "Being the dominant partner", promptReceiver: "Being the submissive partner", theme: ["BDSM", "New to this"] },
-    { prompt: "Wearing a chastity belt/cage", promptReceiver: "the other wearing a chastity cage", theme: ["BDSM"]},
+    { prompt: "Wearing a chastity belt/cage", promptReceiver: "the other wearing a chastity cage", theme: ["BDSM"] },
     { prompt: "Pegging the other", promptReceiver: "Getting pegged", theme: ["New to this"] },
-    { prompt: "Recording a sextape", theme: ["New to this"]},
-    { prompt: "Sexting", theme: ["New to this"]},
-    { prompt: "Taking a nude photshoot of the other", promptReceiver: "Having the other take a nude photoshoot of you", theme: ["New to this"]},
-    { prompt: "performing oral sex", promptReceiver: "receiving oral sex", theme: ["New to this"]},
-    { prompt: "Having the other watch you while you please yourself", promptReceiver: "Watching the other while you please yourself", theme: ["New to this"]},
-    { prompt: "69-ing", theme: ["New to this"]},
-    { prompt: "Using a glory hole", theme: ["New to this"]},
+    { prompt: "Recording a sextape", theme: ["New to this"] },
+    { prompt: "Sexting", theme: ["New to this"] },
+    { prompt: "Taking a nude photshoot of the other", promptReceiver: "Having the other take a nude photoshoot of you", theme: ["New to this"] },
+    { prompt: "performing oral sex", promptReceiver: "receiving oral sex", theme: ["New to this"] },
+    { prompt: "Having the other watch you while you please yourself", promptReceiver: "Watching the other while you please yourself", theme: ["New to this"] },
+    { prompt: "69-ing", theme: ["New to this"] },
+    { prompt: "Using a glory hole", theme: ["New to this"] },
 ]
 
-const all_questions: Set<Question> = new Set(
-    rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id }))
+export const all_questions: Set<QuestionDescription> = new Set(
+    rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id })).flatMap((question) => question.promptReceiver? [{question, receiver: 1}, {question, receiver: 2}] : {question})
 )
 
-export const filteredQuestions = (themes: Set<Theme>, questions?: Question[]) => {
+export const filteredQuestions = (themes: Set<Theme>, questions?: QuestionDescription[]) => {
     const questionsToFilter = questions || all_questions
-    return [...questionsToFilter].filter(({ themes: questionThemes }) => (themes as any).intersection(questionThemes).size > 0)
+    return [...questionsToFilter].filter(({question: { themes: questionThemes }}) => (themes as any).intersection(questionThemes).size > 0)
 }
 
-export const summariseResponses = (answers: Answer[]): ResponseSummary => {
+export const summariseResponses = (answers: DescriptionsAndResponses): ResponseSummary => {
     var common: QuestionDescription[] = [];
     var user1: QuestionDescription[] = [];
     var user2: QuestionDescription[] = [];
     var commonOpen: QuestionDescription[] = [];
 
-    var allQuestions = [...new Set(answers.map((a) => a.question))]
 
-    for (const question of allQuestions ) {
-        if (!question.promptReceiver) {
-            const a1 = answers.find((a) => a.question == question && a.user == 1)
-            const a2 = answers.find((a) => a.question == question && a.user == 2)
-
-            if (!(a1 && a2)) {
-                continue
-            }
-            const qd = { question: question }
+    for (const [qd, attitudes] of answers) {
 
 
-            if (a1.attitude == 'excited' && a2.attitude == 'excited') {
-                common.push(qd)
-            }
-            else if (a1.attitude == 'excited' && a2.attitude == 'open') {
-                user1.push(qd)
-            }
-            else if (a1.attitude == 'open' && a2.attitude == 'excited') {
-                user2.push(qd)
-            }
-            else if (a1.attitude == 'open' && a2.attitude == 'open') {
-                commonOpen.push(qd)
-            }
-        } else {
-            const receivers: User[] = [1, 2]
-            for (const receiver of receivers) {
-                const [a1Role, a2Role] = receiver == 1 ? ["Receiver", "Giver"] : ["Giver", "Receiver"]
-                const a1 = answers.find((a) => a.question == question && a.user == 1 && a.asRole == a1Role)
-                const a2 = answers.find((a) => a.question == question && a.user == 2 && a.asRole == a2Role)
-                const qd = { question: question, Receiver: receiver }
-
-                if (!(a1 && a2)) {
-                    continue
-                }
-
-                if (a1.attitude == 'excited' && a2.attitude == 'excited') {
-                    common.push(qd)
-                }
-                else if (a1.attitude == 'excited' && a2.attitude == 'open') {
-                    user1.push(qd)
-                }
-                else if (a1.attitude == 'open' && a2.attitude == 'excited') {
-                    user2.push(qd)
-                }
-                else if (a1.attitude == 'open' && a2.attitude == 'open') {
-                    commonOpen.push(qd)
-                }
-
-            }
+        if (attitudes.attitude_user1 == 'excited' && attitudes.attitude_user2 == 'excited') {
+            common.push(qd)
+        }
+        else if (attitudes.attitude_user1 == 'excited' && attitudes.attitude_user2 == 'open') {
+            user1.push(qd)
+        }
+        else if (attitudes.attitude_user1 == 'open' && attitudes.attitude_user2 == 'excited') {
+            user2.push(qd)
+        }
+        else if (attitudes.attitude_user1 == 'open' && attitudes.attitude_user2 == 'open') {
+            commonOpen.push(qd)
         }
     }
+
 
     return {
         Common: common,

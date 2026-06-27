@@ -32,10 +32,7 @@ export function SetupForm(props: SetupFormProps) {
         const name_2 = typeof name2_raw == "string" && name2_raw || ""
 
 
-        var new_errors = new Map()
-
-
-
+        let new_errors = new Map()
 
         if (name_1 == "") {
             new_errors.set("player_one_name", "Please enter a name. Get creative!")
