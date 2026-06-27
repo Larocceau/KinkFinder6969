@@ -1,6 +1,6 @@
 import type { QuestionDescription, Question, Answer, Config, User } from './types'
 import { allThemes, summariseResponses, type Theme } from './data'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 type ReportingProps = {
     answers: Answer[],
