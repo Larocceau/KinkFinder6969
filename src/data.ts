@@ -53,8 +53,9 @@ const all_questions: Set<Question> = new Set(
     rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id }))
 )
 
-export const questionIds = (themes: any) => {
-    return [...all_questions].filter(({ themes: questionThemes }) => themes.intersection(questionThemes).size > 0).map(({ id: id }) => id)
+export const filteredQuestions = (themes: Set<Theme>, questions?: Question[]) => {
+    const questionsToFilter = questions || all_questions
+    return [...questionsToFilter].filter(({ themes: questionThemes }) => (themes as any).intersection(questionThemes).size > 0)
 }
 
 export const summariseResponses = (answers: Answer[]): ResponseSummary => {

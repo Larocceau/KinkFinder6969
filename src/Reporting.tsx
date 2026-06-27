@@ -1,22 +1,24 @@
 import type { QuestionDescription, Question, Answer, Config, User } from './types'
-import {  summariseResponses, type Theme } from './data'
+import { allThemes, summariseResponses, type Theme } from './data'
+import { useMemo, useState } from 'react'
 
 type ReportingProps = {
     answers: Answer[],
-    startNewRound: (themes: Theme[]) => void
-    config: Config
+    startNewRound: (themes: Set<Theme>) => void
+    config: Config,
+    roundNumber: number
 }
 
-function questionDescription(q: Question | undefined , perspective: User | undefined, receiver: User| undefined, player_1: string, player_2: string) {
+function questionDescription(q: Question | undefined, perspective: User | undefined, receiver: User | undefined, player_1: string, player_2: string) {
 
     const [receiver_name, actor_name] = receiver == 1 ? [player_1, player_2] : [player_2, player_1]
 
     // going to the beach
-    if (!q?.promptReceiver) return q?.prompt 
+    if (!q?.promptReceiver) return q?.prompt
 
-    const basePrompt =  receiver === perspective ? q.promptReceiver : q.prompt;
+    const basePrompt = receiver === perspective ? q.promptReceiver : q.prompt;
     const [you, the_other] = receiver === perspective ? [receiver_name, actor_name] : [actor_name, receiver_name];
-    const prepend_name = !perspective && !(basePrompt.includes("your") || basePrompt.includes("you") );
+    const prepend_name = !perspective && !(basePrompt.includes("your") || basePrompt.includes("you"));
 
     const finalPrompt = basePrompt.replace("the other", the_other).replace("the other's", `${the_other}'s`).replace("your", `${you}'s`).replace("you", you)
 
@@ -27,19 +29,19 @@ function questionDescription(q: Question | undefined , perspective: User | undef
     return finalPrompt
 }
 
-function QuestionBlock({ qd, perspective, config, startNewRound }: { qd: QuestionDescription, perspective?: User, config: Config, startNewRound: (t: Theme[]) => void }) {
+function QuestionBlock({ qd, perspective, config, startNewRound }: { qd: QuestionDescription, perspective?: User, config: Config, startNewRound: (t: Set<Theme>) => void }) {
     const question = qd.question
     const suggestedTheme = question?.suggestedTheme
     return question && <div>
         {questionDescription(question, perspective, qd.Receiver, config.player_1, config.player_2)}
-        {suggestedTheme && <button onClick={() => startNewRound([suggestedTheme])}>Further explore the topic {question.suggestedTheme}</button>}
+        {suggestedTheme && <button onClick={() => startNewRound(new Set([suggestedTheme]))}>Further explore the topic {question.suggestedTheme}</button>}
     </div> || <></>
 
 }
 
 type CategorySectionProps = {
     config: Config,
-    startNewRound: (themes: Theme[]) => void,
+    startNewRound: (themes: Set<Theme>) => void,
     items: QuestionDescription[],
     name: string
     afterText?: string
@@ -63,17 +65,70 @@ function CategorySection(props: CategorySectionProps) {
 
 export default function Reporting(props: ReportingProps) {
     const { startNewRound, answers } = props
+    const [onlyCurrentRound, setOnlyCurrentRound] = useState(false)
+    const [selectedThemes, setSelectedThemes] = useState(new Set(allThemes))
 
-    const summary = summariseResponses(answers)
+
+    const toggleTheme = (theme: Theme) => {
+        setSelectedThemes((currentSelection) => {
+            const nextSelection = new Set(currentSelection)
+
+            if (nextSelection.has(theme)) {
+                nextSelection.delete(theme)
+            } else {
+                nextSelection.add(theme)
+            }
+
+            return nextSelection
+        })
+    }
+
+    const answersMaybeFilteredByRound = answers.filter((answer) => (!onlyCurrentRound || answer.roundNumber == props.roundNumber))
+
+
+
+    const relevantThemes = ([...new Set(answersMaybeFilteredByRound.map((a) => [...a.question.themes]).flat())])
+
+
+
+
+    const themeToggles = relevantThemes.map((theme) =>
+        <label>
+            <input type="checkbox" checked={selectedThemes.has(theme)} onChange={() => toggleTheme(theme)} />
+            {theme}
+        </label>
+    )
+
+    const relevantAnswers =  answersMaybeFilteredByRound.filter((answer) => {
+        const inSelectedThemes = [...answer.question.themes].some((theme) => selectedThemes.has(theme))
+
+        return inSelectedThemes && (!onlyCurrentRound || answer.roundNumber == props.roundNumber)
+
+    }
+
+)
+
+    const summary = summariseResponses(relevantAnswers)
 
     return (
         <div>
+            <label>
+
+                <input type="checkbox" checked={onlyCurrentRound} onChange={(_) => setOnlyCurrentRound(!onlyCurrentRound)} />
+                only show questions from the last round
+            </label>
+
+            <section>
+                <p>Select the themes you want to see</p>
+                {themeToggles}
+            </section>
+
             <CategorySection name="You both are excited about" items={summary.Common} config={props.config} startNewRound={startNewRound} />
             <CategorySection perspective={1} name={`${props.config.player_1} is excited about`} afterText={`And ${props.config.player_2} is open to that!`} items={summary.User1} config={props.config} startNewRound={startNewRound} />
             <CategorySection perspective={2} name={`${props.config.player_2} is excited about`} afterText={`And ${props.config.player_1} is open to that!`} items={summary.User2} config={props.config} startNewRound={startNewRound} />
             <CategorySection name={`You are both open to`} afterText='Maybe give it a try!' items={summary.CommonOpen} startNewRound={startNewRound} config={props.config} />
 
-            <button onClick={() => startNewRound([])}>Click here to go back to the main menu</button>
+            <button onClick={() => startNewRound(new Set())}>Click here to go back to the main menu</button>
         </div>
     )
 }

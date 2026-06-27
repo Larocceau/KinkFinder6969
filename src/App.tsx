@@ -1,37 +1,119 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
-import type { Answer, Config } from './types'
+import type { Answer, Config, Question } from './types'
 import { SetupForm } from './setup'
 import { QuestionsPhase } from './questionForm'
 import Reporting from './Reporting'
 import type { Theme } from './data'
 import { About } from './About'
+import { RoundSetupForm } from './roundSetup'
 
 
-type Setup = { kind: "setup", preselection: Set<Theme> }
-type Collecting = { kind: "collecting", config: Config }
-type ReportingPhase = { kind: "reporting", answers: Answer[], config: Config }
+type ReportingPhase = { kind: "reporting" }
+type Collecting = { kind: "collecting", questions: Question[] }
+type RoundSetup = { kind: "round-setup", preselection: Set<Theme> }
+
+type PostSetupPhase = RoundSetup | Collecting | ReportingPhase
+
 type About = { kind: "about" }
 
-type Phase = About | Setup | Collecting | ReportingPhase
+type Setup = { kind: "setup" }
+type PostSetup = {
+  kind: "post-setup"
+  phase: PostSetupPhase
+  config: Config
+  answers: Answer[]
+}
+
+type Phase = About | Setup | PostSetup
+
+type PostSetupPhaseProps = {
+  phase: PostSetup,
+  setPhase: (phase: Phase) => void
+}
+
+
+function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
+  const { phase: innerPhase, config, answers } = phase
+
+  const startNewRound = (questions: Question[]) => {
+    setPhase(
+      {
+        ...phase,
+        kind: "post-setup",
+        phase: {
+          kind: "collecting",
+          questions
+        },
+      }
+    )
+  }
+
+  const submitAnswers = (newAnswers: Answer[]) => {
+    setPhase(
+      {
+        ...phase,
+        kind: "post-setup",
+        phase: {
+          kind: "reporting",
+        },
+        answers: answers.concat(newAnswers)
+      }
+    )
+  }
+
+  const startNewSetup = (themes: Set<Theme>) => {
+    setPhase(
+      {
+        ...phase,
+        kind: "post-setup",
+        phase: {
+          kind: "round-setup",
+          preselection: themes
+        }
+      }
+    )
+  }
+
+  const currentRound = useMemo(() =>  {
+    const previous  = Math.max(...phase.answers.map((a) => a.roundNumber))
+    if (isFinite(previous)) {
+      return previous + 1
+    } else {
+      return 0
+    }
+
+
+  }, [phase.answers])
+
+  if (innerPhase.kind == "round-setup") {
+    return <RoundSetupForm initialSelection={innerPhase.preselection} onSubmit={startNewRound} />
+  } else if (innerPhase.kind == "reporting") {
+    return <Reporting config={config} answers={answers} startNewRound={startNewSetup} roundNumber={currentRound -1 } />
+  } else if (innerPhase.kind == "collecting") {
+    return <QuestionsPhase config={config} onEverythingCollected={submitAnswers} questions={innerPhase.questions} roundNumber={currentRound}></QuestionsPhase>
+  }
+
+
+}
+
 
 function App() {
-  const [currentPhase, setCurrentPhase] = useState<Phase>({ kind: "about"})
+  const [currentPhase, setCurrentPhase] = useState<Phase>({ kind: "about" })
 
-  const startNewRound = (themes: Theme[]) => setCurrentPhase({ kind: "setup", preselection: new Set(themes) })
 
   const saveConfig = (config: Config) => {
-    setCurrentPhase({ kind: "collecting", config })
+    setCurrentPhase({ kind: "post-setup", config: config, answers: [], phase: { kind: "round-setup", preselection: new Set(["New to this"]) } })
   }
+
 
   return (
     <div className="ticks">
-      {currentPhase.kind == "about" && <About continue={() => startNewRound(["New to this"])}></About>}
-      {currentPhase.kind == "setup" && <SetupForm initialSelection={currentPhase.preselection} onSubmit={saveConfig}></SetupForm>}
-      {currentPhase.kind == "collecting" && <QuestionsPhase config={currentPhase.config} onEverythingCollected={(answers) => setCurrentPhase({ kind: "reporting", answers, config: currentPhase.config })}></QuestionsPhase>}
-      {currentPhase.kind == 'reporting' && (
-        <Reporting config={currentPhase.config} answers={currentPhase.answers} startNewRound={startNewRound} />
-      )}
+      {currentPhase.kind == "about" && <About continue={() => setCurrentPhase({ kind: "setup" })}></About>}
+      {currentPhase.kind == "setup" && <SetupForm onSubmit={saveConfig}></SetupForm>}
+      {currentPhase.kind == "post-setup" &&
+        <PostSetupPhase phase={currentPhase} setPhase={setCurrentPhase}></PostSetupPhase>
+      }
 
     </div>
   )

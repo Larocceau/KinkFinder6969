@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Answer, Attitude, Config, Question, QuestionId, Role, User } from "./types"
+import type { Answer, Attitude, Config, Question, Role, User } from "./types"
 
 type QuestionFormProps = {
   question: Question,
@@ -78,6 +78,8 @@ function QuestionForm(props: QuestionFormProps) {
 
 export type QuestionPhaseProps = {
   onEverythingCollected: (answers: Answer[]) => void
+  questions: Question[]
+  roundNumber: number
   config: Config
 }
 
@@ -87,11 +89,12 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
   const [currentRole, setCurrentRole] = useState<Role>("Giver")
   const [answers, setAnswers] = useState<Answer[]>([])
   const [handover, sethandover] = useState<boolean>(true)
+
   
-  const question = props.config.questions[currentQuestionIndex]
+  const question = props.questions[currentQuestionIndex]
 
   const handleQuestionSubmit = (attitude: Attitude) => {
-    const newAnswer = { user: currentUser, asRole: currentRole, question: question, attitude }
+    const newAnswer = { user: currentUser, asRole: currentRole, question: question, attitude, roundNumber: props.roundNumber }
     const newAnswers = [...answers, newAnswer]
     setAnswers(newAnswers)
 
@@ -102,7 +105,7 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
 
     setCurrentRole("Giver")
 
-    if (!props.config.questions[currentQuestionIndex + 1]) {
+    if (!props.questions[currentQuestionIndex + 1]) {
       if (currentUser === 1) {
         setCurrentQuestionIndex(0)
         sethandover(true)

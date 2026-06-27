@@ -1,10 +1,8 @@
-import { allThemes, questionIds, type Theme } from "./data";
 import { type Config } from "./types"
 import { useState } from "react"
 
 export type SetupFormProps = {
     onSubmit: (questions: Config) => void
-    initialSelection: Set<Theme>
 };
 
 
@@ -21,21 +19,12 @@ function error(fieldname: string, errors: Map<string, string>) {
 export function SetupForm(props: SetupFormProps) {
     const [errors, setErrors] = useState<Map<string, string>>(new Map())
 
-    const rows = allThemes.map((theme: Theme) =>
-        <label>
-
-            <input type="checkbox" name={theme} defaultChecked={props.initialSelection.has(theme)} />
-            {theme}
-        </label>)
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const fd = new FormData(e.currentTarget);
-
-        const selected =
-            allThemes.filter((theme) => fd.get(theme))
 
         const name1_raw = fd.get("player_one_name")
         const name_1 = typeof name1_raw == "string" && name1_raw || ""
@@ -47,10 +36,6 @@ export function SetupForm(props: SetupFormProps) {
 
 
 
-        if (selected.length == 0) {
-            new_errors.set("categories", "Select at least one category")
-
-        }
 
         if (name_1 == "") {
             new_errors.set("player_one_name", "Please enter a name. Get creative!")
@@ -61,8 +46,7 @@ export function SetupForm(props: SetupFormProps) {
         }
 
         if (new_errors.size === 0) {
-            const themes = new Set(selected)
-            props.onSubmit({ themes, questions: questionIds(themes), player_1: name_1, player_2: name_2 })
+            props.onSubmit({ player_1: name_1, player_2: name_2 })
         } else {
             setErrors(new_errors)
         }
@@ -72,7 +56,7 @@ export function SetupForm(props: SetupFormProps) {
 
         <form className="theme-form" onSubmit={handleSubmit}>
 
-            Enter your names and select the themes you'd like to explore
+            Enter your names
 
             <label>
                 Explorer 1
@@ -85,10 +69,9 @@ export function SetupForm(props: SetupFormProps) {
                 {error("player_two_name", errors)}
             </label>
 
-            {rows}
 
             <button >
-                Start the Questionnaire!
+                Good to go!
             </button>
             {error("categories", errors)}
         </form>

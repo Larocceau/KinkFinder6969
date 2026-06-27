@@ -7,7 +7,6 @@ export type Attitude = "excited" | "open" | "uninterested" | "does not apply"
 
 
 export type Question = {
-    id: QuestionId,
     prompt: string,
     promptReceiver?: string,
     themes: Set<Theme>
@@ -17,8 +16,6 @@ export type Question = {
 export type Config = {
     player_1: string,
     player_2: string,
-    questions: Question[],
-    themes: Set<Theme>
 }
 
 
@@ -27,6 +24,7 @@ export type Answer = {
     question: Question,
     asRole: Role,
     attitude: Attitude,
+    roundNumber: number,
 }
 
 
