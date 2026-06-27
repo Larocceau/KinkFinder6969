@@ -22,7 +22,7 @@ type PostSetup = {
   kind: "post-setup"
   phase: PostSetupPhase
   config: Config
-  answers: Map<QuestionDescription,Responses>
+  answers: Map<QuestionDescription, Responses>
 }
 
 type Phase = About | Setup | PostSetup
@@ -62,6 +62,17 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
     )
   }
 
+  const toOverview = () => {
+    setPhase(
+      {
+        ...phase,
+        kind: "post-setup",
+        phase: {
+          kind: "reporting",
+        }
+      })
+  }
+
   const startNewSetup = (themes: Set<Theme>) => {
     setPhase(
       {
@@ -75,8 +86,8 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
     )
   }
 
-  const currentRound = useMemo(() =>  {
-    const previous  = Math.max(...[...phase.answers].map(([_, responses]) => responses.round_number))
+  const currentRound = useMemo(() => {
+    const previous = Math.max(...[...phase.answers].map(([_, responses]) => responses.round_number))
     if (isFinite(previous)) {
       return previous + 1
     } else {
@@ -87,9 +98,9 @@ function PostSetupPhase({ phase: phase, setPhase }: PostSetupPhaseProps) {
   }, [phase.answers])
 
   if (innerPhase.kind == "round-setup") {
-    return <RoundSetupForm initialSelection={innerPhase.preselection} onSubmit={startNewRound} answers={answers}/>
+    return <RoundSetupForm initialSelection={innerPhase.preselection} onSubmit={startNewRound} answers={answers} toOverview={toOverview} />
   } else if (innerPhase.kind == "reporting") {
-    return <Reporting config={config} answers={answers} startNewRound={startNewSetup} roundNumber={currentRound -1 } />
+    return <Reporting config={config} answers={answers} startNewRound={startNewSetup} roundNumber={currentRound - 1} />
   } else if (innerPhase.kind == "collecting") {
     return <QuestionsPhase config={config} onEverythingCollected={submitAnswers} questions={innerPhase.questions} roundNumber={currentRound}></QuestionsPhase>
   }

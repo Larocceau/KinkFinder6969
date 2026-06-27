@@ -6,6 +6,7 @@ export type RoundSetupFormProps = {
     initialSelection: Set<Theme>
     onSubmit: (questions: QuestionDescription[]) => void
     answers: DescriptionsAndResponses 
+    toOverview: () => void
 }
 
 export function RoundSetupForm(props: RoundSetupFormProps) {
@@ -56,6 +57,9 @@ export function RoundSetupForm(props: RoundSetupFormProps) {
 
             <button >
                 Start the Questionnaire!
+            </button>
+            <button onClick={(e) => {e.preventDefault(); props.toOverview()} }>
+                Results so far
             </button>
         </form>
     </>

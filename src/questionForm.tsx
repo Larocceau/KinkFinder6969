@@ -151,7 +151,6 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
     </>
   }
 
-
   return (
     <div>
 
