@@ -16,6 +16,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "peeing on the other", promptReceiver: "Getting peed on", theme: ["Dirty"] },
     { prompt: "exploring kinks that people may consider unhygienic", theme: ["New to this"], suggestedTheme: "Dirty" },
     { prompt: "eating the other's ass", promptReceiver: "the other eating your ass", theme: ["Dirty"] },
+    { prompt: "having sex after a heavy workout", theme: ["Dirty", "New to this"]},
     { prompt: "Eating food from the other's body", promptReceiver: "Having the other eat food off you", theme: ["New to this"] },
     { prompt: "Having sex in a public place", theme: ["New to this"] },
     { prompt: "Having your climax controlled", promptReceiver: "controlling the other's climax", theme: ["New to this"] },
@@ -37,6 +38,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "Getting a dog together", theme: ["Non-sexual"] },
     { prompt: "Tying the other up", promptReceiver: "Getting tied up", theme: ["BDSM"] },
     { prompt: "Being the dominant partner", promptReceiver: "Being the submissive partner", theme: ["BDSM", "New to this"] },
+    { prompt: "Wearing a chastity belt/cage", promptReceiver: "the other wearing a chastity cage", theme: ["BDSM"]},
     { prompt: "Pegging the other", promptReceiver: "Getting pegged", theme: ["New to this"] },
     { prompt: "Recording a sextape", theme: ["New to this"]},
     { prompt: "Sexting", theme: ["New to this"]},
@@ -55,23 +57,23 @@ export const questionIds = (themes: any) => {
     return [...all_questions].filter(({ themes: questionThemes }) => themes.intersection(questionThemes).size > 0).map(({ id: id }) => id)
 }
 
-export const questionsMap: Map<number, Question> = new Map([...all_questions].map(q => [q.id, q]))
-
 export const summariseResponses = (answers: Answer[]): ResponseSummary => {
     var common: QuestionDescription[] = [];
     var user1: QuestionDescription[] = [];
     var user2: QuestionDescription[] = [];
     var commonOpen: QuestionDescription[] = [];
 
-    for (const question of all_questions) {
+    var allQuestions = [...new Set(answers.map((a) => a.question))]
+
+    for (const question of allQuestions ) {
         if (!question.promptReceiver) {
-            const a1 = answers.find((a) => a.questionId == question.id && a.user == 1)
-            const a2 = answers.find((a) => a.questionId == question.id && a.user == 2)
+            const a1 = answers.find((a) => a.question == question && a.user == 1)
+            const a2 = answers.find((a) => a.question == question && a.user == 2)
 
             if (!(a1 && a2)) {
                 continue
             }
-            const qd = { QuestionId: question.id }
+            const qd = { question: question }
 
 
             if (a1.attitude == 'excited' && a2.attitude == 'excited') {
@@ -90,9 +92,9 @@ export const summariseResponses = (answers: Answer[]): ResponseSummary => {
             const receivers: User[] = [1, 2]
             for (const receiver of receivers) {
                 const [a1Role, a2Role] = receiver == 1 ? ["Receiver", "Giver"] : ["Giver", "Receiver"]
-                const a1 = answers.find((a) => a.questionId == question.id && a.user == 1 && a.asRole == a1Role)
-                const a2 = answers.find((a) => a.questionId == question.id && a.user == 2 && a.asRole == a2Role)
-                const qd = { QuestionId: question.id, Receiver: receiver }
+                const a1 = answers.find((a) => a.question == question && a.user == 1 && a.asRole == a1Role)
+                const a2 = answers.find((a) => a.question == question && a.user == 2 && a.asRole == a2Role)
+                const qd = { question: question, Receiver: receiver }
 
                 if (!(a1 && a2)) {
                     continue

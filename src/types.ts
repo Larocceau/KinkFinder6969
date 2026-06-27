@@ -17,21 +17,21 @@ export type Question = {
 export type Config = {
     player_1: string,
     player_2: string,
-    questions: QuestionId[],
+    questions: Question[],
     themes: Set<Theme>
 }
 
 
 export type Answer = {
     user: User,
-    questionId: QuestionId,
+    question: Question,
     asRole: Role,
     attitude: Attitude,
 }
 
 
 export type QuestionDescription = {
-    QuestionId: QuestionId,
+    question: Question,
     Receiver?: User
 }
 

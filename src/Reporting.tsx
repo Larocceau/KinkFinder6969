@@ -1,5 +1,5 @@
 import type { QuestionDescription, Question, Answer, Config, User } from './types'
-import { questionsMap, summariseResponses, type Theme } from './data'
+import {  summariseResponses, type Theme } from './data'
 
 type ReportingProps = {
     answers: Answer[],
@@ -28,7 +28,7 @@ function questionDescription(q: Question | undefined , perspective: User | undef
 }
 
 function QuestionBlock({ qd, perspective, config, startNewRound }: { qd: QuestionDescription, perspective?: User, config: Config, startNewRound: (t: Theme[]) => void }) {
-    const question = questionsMap.get(qd.QuestionId)
+    const question = qd.question
     const suggestedTheme = question?.suggestedTheme
     return question && <div>
         {questionDescription(question, perspective, qd.Receiver, config.player_1, config.player_2)}
@@ -63,9 +63,8 @@ function CategorySection(props: CategorySectionProps) {
 
 export default function Reporting(props: ReportingProps) {
     const { startNewRound, answers } = props
+
     const summary = summariseResponses(answers)
-    console.log(answers)
-    console.log(summary)
 
     return (
         <div>

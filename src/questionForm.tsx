@@ -1,19 +1,14 @@
 import { useState } from "react"
-import type { Answer, Attitude, Config, QuestionId, Role, User } from "./types"
-import {questionsMap } from "./data"
+import type { Answer, Attitude, Config, Question, QuestionId, Role, User } from "./types"
 
 type QuestionFormProps = {
-  question: QuestionId,
+  question: Question,
   role: Role,
   doSubmit: (attitude: Attitude) => void
   other_name: string
 }
 
 function QuestionForm(props: QuestionFormProps) {
-
-  const question = questionsMap.get(props.question)
-  //TODO this should probably be handled nicer
-  if (!question) throw new Error(`Question ${props.question} not found`)
 
 
   const [choice, setChoice] = useState<Attitude | undefined>(undefined)
@@ -49,7 +44,7 @@ function QuestionForm(props: QuestionFormProps) {
   }
 
   const prompt = 
-    (props.role === 'Giver' ? question.prompt : (question.promptReceiver ?? question.prompt))
+    (props.role === 'Giver' ? props.question.prompt : (props.question.promptReceiver ?? props.question.prompt))
     .replace("the other", props.other_name)
 
 
@@ -96,12 +91,11 @@ export function QuestionsPhase(props: QuestionPhaseProps) {
   const question = props.config.questions[currentQuestionIndex]
 
   const handleQuestionSubmit = (attitude: Attitude) => {
-    const newAnswer = { user: currentUser, asRole: currentRole, questionId: question, attitude }
+    const newAnswer = { user: currentUser, asRole: currentRole, question: question, attitude }
     const newAnswers = [...answers, newAnswer]
     setAnswers(newAnswers)
 
-    const qObj = questionsMap.get(question)
-    if (currentRole === "Giver" && qObj?.promptReceiver) {
+    if (currentRole === "Giver" && question?.promptReceiver) {
       setCurrentRole("Receiver")
       return
     }
