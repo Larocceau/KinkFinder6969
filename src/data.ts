@@ -32,7 +32,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "watching porn together", theme: ["New to this"] },
     { prompt: "using toys on the other", promptReceiver: "having the other use toys on you", theme: ["New to this"] },
     { prompt: "playing a sex game", theme: ["New to this"] },
-    { prompt: "going to a sexs club", theme: ["New to this"] },
+    { prompt: "going to a sex club", theme: ["New to this"] },
     { prompt: "having a threesome", theme: ["New to this"] },
     { prompt: "having a threesome with someone you both know", theme: ["Threesome"] },
     { prompt: "having a threesome with someone you know", promptReceiver: "having a threesome with someone the other knows", theme: ["Threesome"] },
