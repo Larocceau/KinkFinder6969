@@ -1,14 +1,22 @@
-import type {  Question, QuestionDescription, ResponseSummary, DescriptionsAndResponses } from "./types"
+import type { Question, QuestionDescription, ResponseSummary, DescriptionsAndResponses } from "./types"
 
-export type Theme = "New to this" | "Dirty" | "Roleplay" | "Threesome" | "Non-sexual" | "BDSM"
+export type Theme = "New to this" | "Dirty" | "Roleplay" | "Threesome" | "Non-sexual" | "BDSM" | "feet" | "crotch" | "toes" | "ears" | "hands" | "arm pits"
 
-export const allThemes: Theme[] = ["New to this", "Dirty", "Roleplay", "Threesome", "Non-sexual", "BDSM"]
+
+const bodyParts: Theme[] = ["feet", "crotch", "toes", "ears", "hands", "arm pits"]
+
+
+export const allThemes: Theme[] = ["New to this", "Dirty", "Roleplay", "Threesome", "Non-sexual", "BDSM", ...bodyParts]
 
 type RawQuestion = Omit<Question, 'themes' | 'id'> & {
     theme: Theme[]
 }
 
+const actions = ["sucking on", "kissing", "licking", "worshipping", "stroking", "fucking"]
+
 const rawQuestions: RawQuestion[] = [
+    ...bodyParts.map((part) => {return {prompt: `fetishising the other's ${part}`, promptReceiver: `the other fetishising your ${part}`, theme: ["New to this" as const], suggestedTheme: [part] } } ),
+    ...bodyParts.flatMap((part) => actions.map((action => { return { prompt: `${action} the other's ${part}`, promptReceiver: `the other ${action} your ${part}`, theme: [part] } }))),
     { prompt: "engaging in roleplay", theme: ["New to this"], suggestedTheme: "Roleplay" },
     { prompt: "giving a massage", promptReceiver: "getting a massage", theme: ["New to this", "Non-sexual"] },
     { prompt: "playing the other's teacher", promptReceiver: "playing the other's student", theme: ["Roleplay"] },
@@ -22,7 +30,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "having your climax controlled", promptReceiver: "controlling the other's climax", theme: ["New to this"] },
     { prompt: "performing a strip tease", promptReceiver: "having the other perform a strip tease", theme: ["New to this"] },
     { prompt: "watching porn together", theme: ["New to this"] },
-    { prompt: "using toys on the other", promptReceiver: "have the other use toys on you", theme: ["New to this"] },
+    { prompt: "using toys on the other", promptReceiver: "having the other use toys on you", theme: ["New to this"] },
     { prompt: "playing a sex game", theme: ["New to this"] },
     { prompt: "going to a sexs club", theme: ["New to this"] },
     { prompt: "having a threesome", theme: ["New to this"] },
@@ -50,12 +58,12 @@ const rawQuestions: RawQuestion[] = [
 ]
 
 export const all_questions: Set<QuestionDescription> = new Set(
-    rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id })).flatMap((question) => question.promptReceiver? [{question, Receiver: 1}, {question, Receiver: 2}] : {question})
+    rawQuestions.map(({ theme: themes, ...rest }, id) => ({ ...rest, themes: new Set(themes), id })).flatMap((question) => question.promptReceiver ? [{ question, Receiver: 1 }, { question, Receiver: 2 }] : { question })
 )
 
 export const filteredQuestions = (themes: Set<Theme>, questions?: QuestionDescription[]) => {
     const questionsToFilter = questions || all_questions
-    return [...questionsToFilter].filter(({question: { themes: questionThemes }}) => (themes as any).intersection(questionThemes).size > 0)
+    return [...questionsToFilter].filter(({ question: { themes: questionThemes } }) => (themes as any).intersection(questionThemes).size > 0)
 }
 
 export const summariseResponses = (answers: DescriptionsAndResponses): ResponseSummary => {

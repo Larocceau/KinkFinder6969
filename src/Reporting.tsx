@@ -1,4 +1,4 @@
-import type { QuestionDescription, Question, Config, User, DescriptionsAndResponses } from './types'
+import type { QuestionDescription, Config, User, DescriptionsAndResponses } from './types'
 import { allThemes, summariseResponses, type Theme } from './data'
 import { useState } from 'react'
 
@@ -9,15 +9,16 @@ type ReportingProps = {
     roundNumber: number
 }
 
-function questionDescription(q: Question | undefined, perspective: User | undefined, receiver: User | undefined, player_1: string, player_2: string) {
-
-    const [receiver_name, actor_name] = receiver == 1 ? [player_1, player_2] : [player_2, player_1]
+function questionDescription(q: QuestionDescription, perspective: User | undefined, player_1: string, player_2: string) {
 
     // going to the beach
-    if (!q?.promptReceiver) return q?.prompt
+    if (!q.Receiver) return q.question.prompt
 
-    const basePrompt = receiver === perspective ? q.promptReceiver : q.prompt;
-    const [you, the_other] = receiver === perspective ? [receiver_name, actor_name] : [actor_name, receiver_name];
+    const [receiver_name, actor_name] = q.Receiver == 1 ? [player_1, player_2] : [player_2, player_1]
+
+
+    const basePrompt = (q.Receiver === perspective ? q.question.promptReceiver : undefined) || q.question.prompt;
+    const [you, the_other] = q.Receiver === perspective ? [receiver_name, actor_name] : [actor_name, receiver_name];
     const prepend_name = !perspective && !(basePrompt.includes("your") || basePrompt.includes("you"));
 
     const finalPrompt = basePrompt.replace("the other", the_other).replace("the other's", `${the_other}'s`).replace("your", `${you}'s`).replace("you", you)
@@ -30,12 +31,11 @@ function questionDescription(q: Question | undefined, perspective: User | undefi
 }
 
 function QuestionBlock({ qd, perspective, config, startNewRound }: { qd: QuestionDescription, perspective?: User, config: Config, startNewRound: (t: Set<Theme>) => void }) {
-    const question = qd.question
-    const suggestedTheme = question?.suggestedTheme
-    return question && <div>
-        {questionDescription(question, perspective, qd.Receiver, config.player_1, config.player_2)}
-        {suggestedTheme && <button onClick={() => startNewRound(new Set([suggestedTheme]))}>Further explore the topic {question.suggestedTheme}</button>}
-    </div> || <></>
+    const suggestedTheme = qd.question.suggestedTheme
+    return <div>
+        {questionDescription(qd, perspective, config.player_1, config.player_2)}
+        {suggestedTheme && <button onClick={() => startNewRound(new Set([suggestedTheme]))}>Further explore the topic {qd.question.suggestedTheme}</button>}
+    </div>
 
 }
 
@@ -93,14 +93,14 @@ export default function Reporting(props: ReportingProps) {
         </label>
     )
 
-    const relevantAnswers =  answersMaybeFilteredByRound.filter(([description, outcome]) => {
+    const relevantAnswers = answersMaybeFilteredByRound.filter(([description, outcome]) => {
         const inSelectedThemes = [...description.question.themes].some((theme) => selectedThemes.has(theme))
 
         return inSelectedThemes && (!onlyCurrentRound || outcome.round_number == props.roundNumber)
 
     }
 
-)
+    )
 
     const summary = summariseResponses(new Map(relevantAnswers))
 
