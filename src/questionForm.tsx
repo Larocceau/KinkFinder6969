@@ -21,6 +21,8 @@ function QuestionForm(props: QuestionFormProps) {
 
   const [choice, setChoice] = useState<Attitude | undefined>(undefined)
   const [error, setError] = useState(false)
+  const [areYouSure, setAreYouSure] = useState(false)
+  const [skipAreYouSure, setSkipAreYouSure] = useState(false)
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     let parsed: Attitude | undefined = undefined
@@ -47,7 +49,17 @@ function QuestionForm(props: QuestionFormProps) {
   const handleSubmit = () => {
     if (choice === undefined)
       setError(true)
-    else props.doSubmit(choice)
+
+
+    else {
+      if (!skipAreYouSure && !areYouSure && choice == "does not apply") {
+        setAreYouSure(true)
+      } else {
+        setAreYouSure(false)
+        props.doSubmit(choice)
+      }
+
+    }
 
   }
 
@@ -58,7 +70,6 @@ function QuestionForm(props: QuestionFormProps) {
 
   return (
     <div>
-      {error && <p>Please make a choice</p>}
       <p>How do you feel about {prompt}?</p>
 
       <select onChange={handleChange} value={choice ?? ""}>
@@ -78,7 +89,16 @@ function QuestionForm(props: QuestionFormProps) {
           Does not work for us
         </option>
       </select>
-      <button onClick={handleSubmit}>submit</button>
+
+      {error && <p className="error">Please make a choice</p>}
+      {areYouSure &&
+        <><p className="waring">Are you sure this does not apply to you? Only use this option to skip questions that are really impossible. Hit submit again to move on</p>
+          <label>
+            <input type="checkbox" checked={skipAreYouSure} onChange={() => setSkipAreYouSure((v) => !v)} /> don't show this again
+          </label>
+          <br/>
+        </>}
+      <button onClick={handleSubmit}>{"submit"}</button>
     </div>
   )
 

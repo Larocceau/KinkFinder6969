@@ -1,9 +1,10 @@
 import type { Question, QuestionDescription, ResponseSummary, DescriptionsAndResponses } from "./types"
 
-export type Theme = "New to this" | "Dirty" | "Roleplay" | "Threesome" | "Non-sexual" | "BDSM" | "feet" | "genitals" | "toes" | "ears" | "hands" | "asshole" | "arm pits" | "Getting others involved" | "Creative" | "Places" | "Clothing"
+export type Theme = "New to this" | "Dirty" | "Roleplay" | "Threesome" | "Non-sexual" | "BDSM" | "feet" | "genitals" | "toes" | "ears" | "hands" | "asshole" | "arm pits" |
+    "chest" | "nipples"  | "mouth" | "Getting others involved" | "Creative" | "Places" | "Clothing"
 
 
-const bodyParts: Theme[] = ["feet", "genitals", "ears", "hands", "arm pits", "asshole"]
+const bodyParts: Theme[] = ["feet", "genitals", "ears", "hands", "arm pits", "asshole", "chest", "nipples", "mouth"]
 
 
 export const allThemes: Theme[] = ["New to this", "Places", "Roleplay", "Threesome", "Non-sexual", "BDSM", ...bodyParts, "Getting others involved", "Creative", "Dirty", "Clothing", "Places"]
@@ -57,12 +58,12 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "being gagged", promptReceiver: "the other being gagged", theme: ["BDSM"] },
     { prompt: "feeding the other", promptReceiver: "being fed by the other", theme: ["BDSM"] },
     { prompt: "wearing handcuffs", promptReceiver: "putting handcuffs on the other", theme: ["BDSM"] },
-    { prompt: "wearing leather", promptReceiver: "the other wearing leather", theme: ["Clothing"]},
-    { prompt: "wearing latex", promptReceiver: "the other wearing latex", theme: ["Clothing"]},
+    { prompt: "wearing leather", promptReceiver: "the other wearing leather", theme: ["Clothing"] },
+    { prompt: "wearing latex", promptReceiver: "the other wearing latex", theme: ["Clothing"] },
     { prompt: "wearing a skirt/dress during sex", promptReceiver: "having sex while the other wears a skirt/dress", theme: ["Clothing"] },
-    { prompt: "having sex (almost) fully clothed", theme: ["New to this", "Clothing"]},
-    { prompt: "diy-ing a sexy/kinky outfit", theme: ["Creative"]},
-    { prompt: "wearing fetishwear", promptReceiver: "the other wearing fetishwear", theme: ["New to this"], suggestedTheme: "Clothing"},
+    { prompt: "having sex (almost) fully clothed", theme: ["New to this", "Clothing"] },
+    { prompt: "diy-ing a sexy/kinky outfit", theme: ["Creative"] },
+    { prompt: "wearing fetishwear", promptReceiver: "the other wearing fetishwear", theme: ["New to this"], suggestedTheme: "Clothing" },
     { prompt: "pegging the other", promptReceiver: "getting pegged", theme: ["New to this", "asshole"] },
     { prompt: "recording a sex tape", theme: ["New to this", "Creative"] },
     { prompt: "sexting", theme: ["New to this"] },
@@ -83,12 +84,12 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "fingering the other anally", promptReceiver: "getting fingered anally", theme: ["Dirty"] },
     { prompt: "having sex in a car", theme: ["Places"] },
     { prompt: "having sex in a public bathroom", theme: ["Places"] },
-    { prompt: "joining the mile-high club", theme: ["Places"]},
-    { prompt: "having sex on a train", theme: ["Places"]},
-    { prompt: "having sex in the shower", theme: ["Places", "New to this"]},
+    { prompt: "joining the mile-high club", theme: ["Places"] },
+    { prompt: "having sex on a train", theme: ["Places"] },
+    { prompt: "having sex in the shower", theme: ["Places", "New to this"] },
     { prompt: "being waken up using sex", promptReceiver: "waking the other up using sex", theme: ["New to this"] },
     { prompt: "being waken up for sex", promptReceiver: "waking the other up for sex", theme: ["New to this"] },
-    { prompt: "using a sex swing", theme: ["New to this", "BDSM"]}
+    { prompt: "using a sex swing", theme: ["New to this", "BDSM"] }
 
 ]
 
