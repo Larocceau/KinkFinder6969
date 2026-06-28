@@ -5,7 +5,7 @@ import type { DescriptionsAndResponses, QuestionDescription } from "./types"
 export type RoundSetupFormProps = {
     initialSelection: Set<Theme>
     onSubmit: (questions: QuestionDescription[]) => void
-    answers: DescriptionsAndResponses 
+    answers: DescriptionsAndResponses
     toOverview: () => void
 }
 
@@ -15,14 +15,15 @@ export function RoundSetupForm(props: RoundSetupFormProps) {
 
     const rows = allThemes.map((theme: Theme) => {
         const totalQuestions = [...all_questions].filter((qd) => qd.question.themes.has(theme)).length;
-        const answeredQuestions = [...props.answers].filter(([qd,_]) => qd.question.themes.has(theme)).length;
+        const answeredQuestions = [...props.answers].filter(([qd, _]) => qd.question.themes.has(theme)).length;
 
 
-       return <label>
+        return <label>
 
-            <input type="checkbox" name={theme} defaultChecked={props.initialSelection.has(theme)} disabled={totalQuestions == answeredQuestions } />
+            <input type="checkbox" name={theme} defaultChecked={props.initialSelection.has(theme)} disabled={totalQuestions == answeredQuestions} />
             {`${theme} (${answeredQuestions}/${totalQuestions})`}
-        </label>})
+        </label>
+    })
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,14 +38,33 @@ export function RoundSetupForm(props: RoundSetupFormProps) {
             setError(true)
 
         } else {
-            const usedDefinitions = new Set([...props.answers].map(([qd,_] )=> qd))
+            const usedDefinitions = new Set([...props.answers].map(([qd, _]) => qd))
 
-            props.onSubmit(filteredQuestions(new Set(selected)).filter( (qd) => !usedDefinitions.has(qd)))
+            const questions = filteredQuestions(new Set(selected)).filter((qd) => !usedDefinitions.has(qd))
+            shuffle(questions)
 
-
+            props.onSubmit(questions)
         }
+    }
 
+    // Source - https://stackoverflow.com/a/2450976
+    // Posted by ChristopheD, modified by community. See post 'Timeline' for change history
+    // Retrieved 2026-06-28, License - CC BY-SA 4.0
 
+    function shuffle<T>(array: Array<T>) {
+        let currentIndex = array.length;
+
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+
+            // Pick a remaining element...
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
     }
 
     return <>
@@ -58,7 +78,7 @@ export function RoundSetupForm(props: RoundSetupFormProps) {
             <button >
                 Start the Questionnaire!
             </button>
-            <button onClick={(e) => {e.preventDefault(); props.toOverview()} }>
+            <button onClick={(e) => { e.preventDefault(); props.toOverview() }}>
                 Results so far
             </button>
         </form>
