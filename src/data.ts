@@ -51,7 +51,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "getting a dog together", theme: ["Non-sexual"] },
     { prompt: "tying the other up", promptReceiver: "getting tied up", theme: ["BDSM"] },
     { prompt: "being the dominant partner", promptReceiver: "being the submissive partner", theme: ["BDSM", "New to this"], suggestedTheme: "BDSM" },
-    { prompt: "sparking the other", promptReceiver: "getting spanked", theme: ["BDSM"] },
+    { prompt: "spanking the other", promptReceiver: "getting spanked", theme: ["BDSM"] },
     { prompt: "being put in a cage", promptReceiver: "putting the other in a cage", theme: ["BDSM"] },
     { prompt: "wearing a collar", promptReceiver: "the other wearing a collar", theme: ["BDSM"] },
     { prompt: "wearing a chastity belt/cage", promptReceiver: "the other wearing a chastity belt/cage", theme: ["BDSM"] },
@@ -67,7 +67,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "pegging the other", promptReceiver: "getting pegged", theme: ["New to this", "asshole"] },
     { prompt: "recording a sex tape", theme: ["New to this", "Creative"] },
     { prompt: "sexting", theme: ["New to this"] },
-    { prompt: "taking a nude photshoot of the other", promptReceiver: "having the other take a nude photoshoot of you", theme: ["New to this", "Creative"] },
+    { prompt: "taking a nude photshoot of the other", promptReceiver: "the other taking a nude photoshoot of you", theme: ["New to this", "Creative"] },
     { prompt: "performing oral sex", promptReceiver: "receiving oral sex", theme: ["New to this"] },
     { prompt: "having the other watch you while you please yourself", promptReceiver: "playing with yourself while the other watches", theme: ["New to this"] },
     { prompt: "masturbating together", theme: ["New to this"] },
@@ -78,7 +78,7 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "reading or watching instructions on a new position/act", theme: ["New to this"] },
     { prompt: "reading smut to the other", promptReceiver: "the other reading smut to you", theme: ["New to this"] },
     { prompt: "painting on the other", promptReceiver: "getting painted on", theme: ["New to this", "Creative"] },
-    { prompt: "describing what you find sexy about the other", promptReceiver: "having the other describe what they find sexy about you", theme: ["New to this", "Creative"] },
+    { prompt: "describing what you find sexy about the other", promptReceiver: "the other describing what they find sexy about you", theme: ["New to this", "Creative"] },
     { prompt: "sitting on the other's face", promptReceiver: "the other sitting on your face", theme: ["New to this"] },
     { prompt: "fingering the other vaginally", promptReceiver: "getting fingered by  vaginally", theme: ["New to this"] },
     { prompt: "fingering the other anally", promptReceiver: "getting fingered anally", theme: ["Dirty"] },
@@ -89,7 +89,9 @@ const rawQuestions: RawQuestion[] = [
     { prompt: "having sex in the shower", theme: ["Places", "New to this"] },
     { prompt: "being waken up using sex", promptReceiver: "waking the other up using sex", theme: ["New to this"] },
     { prompt: "being waken up for sex", promptReceiver: "waking the other up for sex", theme: ["New to this"] },
-    { prompt: "using a sex swing", theme: ["New to this", "BDSM"] }
+    { prompt: "using a sex swing", theme: ["New to this", "BDSM"] },
+    { prompt: "being loud during sex", promptReceiver: "the other being loud during sex", theme: ["New to this"]},
+    { prompt: "dripping wax on the other", promptReceiver: "the other dripping wax on you", theme: ["BDSM", "New to this"]}
 
 ]
 
