@@ -1,6 +1,6 @@
 # KinkFinder6969
 
-This app helps partners discover eachother's sexual interests. Read the full description on the website's [about page](src/About.tsx). You'll find a running version of the app [here](https://guileless-basbousa-f294fa.netlify.app/)
+This app helps partners discover eachother's sexual interests. Read the full description on the website's [about page](src/About.tsx). You'll find a running version of the app [here](https://www.kinkfinder6969.com/)
 
 ## Running the app
 
